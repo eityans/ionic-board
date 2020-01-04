@@ -70,5 +70,7 @@ export class HomePage {
     });
     await alert.present();
   }
-
+  deletePost(index: number) {
+    this.posts.splice(index, 1);
+  }
 }
