@@ -7,6 +7,14 @@ import { Component } from '@angular/core';
 })
 export class HomePage {
 
-  constructor() {}
+  post: {
+    userName: string,
+    message: string,
+    createdDate: any
+  } = {
+    userName: 'Taro Yamada',
+    message: 'This is test message.',
+    createdDate: '10分前'
+  }
 
 }
