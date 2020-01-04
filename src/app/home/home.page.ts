@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { AlertController } from '@ionic/angular';
 
 @Component({
   selector: 'app-home',
@@ -28,6 +29,8 @@ export class HomePage {
     }
   ];
 
+  constructor(private alertCtrl: AlertController){}
+
   addPost(){
     this.post = {
       userName: 'XXX YYYY',
@@ -35,7 +38,37 @@ export class HomePage {
       createdDate: '数秒前'
     };
     this.posts.push(this.post);
-    this.message = ";"
+    this.message = ""
+  }
+
+  async presentPrompt(index: number) {
+    const alert = await this.alertCtrl.create({
+      header: 'メッセージ編集',
+      inputs: [
+        {
+          name: 'message',
+          type: 'text',
+          placeholder: 'メッセージ'
+        }
+      ],
+      buttons: [
+        {
+          text: 'キャンセル',
+          role: 'cancel',
+          handler: () => {
+            console.log('キャンセルが選択されました');
+          }
+        },
+        {
+          text: '更新',
+          handler: data => {
+            console.log(data);
+            this.posts[index].message = data.message;
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 
 }
