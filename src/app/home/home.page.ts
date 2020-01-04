@@ -11,11 +11,8 @@ export class HomePage {
     userName: string,
     message: string,
     createdDate: any
-  } = {
-    userName: 'Taro Yamada',
-    message: 'This is test message.',
-    createdDate: '10分前'
-  };
+  }
+  message: string;
 
   posts: {userName: string, message: string, createdDate: any}[]
     = [
@@ -26,9 +23,19 @@ export class HomePage {
     },
     {
       userName: 'Taro Yamada',
-      message: 'This is test message.',
+      message: 'This is second message.',
       createdDate: '10分前'
     }
   ];
+
+  addPost(){
+    this.post = {
+      userName: 'XXX YYYY',
+      message: this.message,
+      createdDate: '数秒前'
+    };
+    this.posts.push(this.post);
+    this.message = ";"
+  }
 
 }
