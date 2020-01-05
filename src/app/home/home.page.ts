@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AlertController, ToastController } from '@ionic/angular';
+import * as moment from 'moment';
 
 //Firebase
 import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
@@ -138,6 +139,11 @@ export class HomePage implements OnInit {
           duration: 3000
         });
         await toast.present();
-      })
+      });
+  }
+
+  differenceTime(time: Date): string {
+    moment.locale('ja');
+    return moment(time).fromNow();
   }
 }
