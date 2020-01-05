@@ -13,7 +13,7 @@ import { CommentsPage } from './comments.page';
     CommonModule,
     FormsModule,
     IonicModule,
-    RouterModule.forChild(routes)
+    RouterModule
   ],
   declarations: []
 })
