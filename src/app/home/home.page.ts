@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { AlertController, ToastController } from '@ionic/angular';
+import { AlertController, ToastController,
+  ModalController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import * as moment from 'moment';
 
@@ -9,6 +10,7 @@ import { AngularFireAuth } from '@angular/fire/auth';
 import * as firebase from 'firebase';
 
 import { Post } from '../models/post';
+import { CommentsPage } from '../comments/comments.page';
 import { async } from '@angular/core/testing';
 
 @Component({
@@ -29,7 +31,8 @@ export class HomePage implements OnInit {
     private toastCtrl: ToastController,
     private afStore: AngularFirestore,
     private afAuth: AngularFireAuth,
-    private router: Router
+    private router: Router,
+    private modalCtrl: ModalController
   ){}
 
   ngOnInit() {
@@ -170,5 +173,15 @@ export class HomePage implements OnInit {
         });
         await toast.present();
       });
+  }
+
+  async showComment(post: Post) {
+    const modal = await this.modalCtrl.create({
+      component: CommentsPage,
+      componentProps: {
+        sourcePost: post
+      }
+    });
+    return await modal.present();
   }
 }
