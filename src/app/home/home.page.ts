@@ -1,47 +1,73 @@
-import { Component } from '@angular/core';
-import { AlertController } from '@ionic/angular';
+import { Component, OnInit } from '@angular/core';
+import { AlertController, ToastController } from '@ionic/angular';
+
+//Firebase
+import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
+import { AngularFireAuth } from '@angular/fire/auth';
+import * as firebase from 'firebase';
+
+import { Post } from '../models/post';
 
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
 })
-export class HomePage {
+export class HomePage implements OnInit {
 
-  post: {
-    userName: string,
-    message: string,
-    createdDate: any
-  }
   message: string;
+  post: Post;
+  posts: Post[];
 
-  posts: {userName: string, message: string, createdDate: any}[]
-    = [
-    {
-      userName: 'Taro Yamada',
-      message: 'This is test message.',
-      createdDate: '10分前'
-    },
-    {
-      userName: 'Taro Yamada',
-      message: 'This is second message.',
-      createdDate: '10分前'
-    }
-  ];
+  postsCollection: AngularFirestoreCollection<Post>;
 
-  constructor(private alertCtrl: AlertController){}
+  constructor(
+    private alertCtrl: AlertController,
+    private toastCtrl: ToastController,
+    private afStore: AngularFirestore,
+    private afAuth: AngularFireAuth
+  ){}
+
+  ngOnInit() {
+    this.getPosts();
+  }
 
   addPost(){
     this.post = {
-      userName: 'XXX YYYY',
+      id: '',
+      userName: this.afAuth.auth.currentUser.displayName,
       message: this.message,
-      createdDate: '数秒前'
+      created: firebase.firestore.FieldValue.serverTimestamp()
     };
-    this.posts.push(this.post);
-    this.message = ""
+
+    //Firestoreにデータを追加
+    this.afStore
+      .collection('posts')
+      .add(this.post)
+      .then(docRef => {
+        console.log(docRef.id);
+        this.postsCollection.doc(docRef.id).update({
+          id: docRef.id
+        });
+        this.message = '';
+      })
+      .catch(async error => {
+        const toast = await this.toastCtrl.create({
+          message: error.toString(),
+          duration: 3000
+        });
+        await toast.present();
+      });
   }
 
-  async presentPrompt(index: number) {
+  getPosts() {
+    this.postsCollection = this.afStore.collection('posts', ref => ref.orderBy('created', 'desc'));
+    this.postsCollection.valueChanges().subscribe(data => {
+      this.posts = data;
+    });
+  }
+
+  async presentPrompt(post: Post) {
     const alert = await this.alertCtrl.create({
       header: 'メッセージ編集',
       inputs: [
@@ -63,14 +89,55 @@ export class HomePage {
           text: '更新',
           handler: data => {
             console.log(data);
-            this.posts[index].message = data.message;
+            this.updatePost(post, data.message);
           }
         }
       ]
     });
     await alert.present();
   }
-  deletePost(index: number) {
-    this.posts.splice(index, 1);
+
+  updatePost(post: Post, message: string){
+    console.log('(っ＾ω＾ｃ)');
+    this.postsCollection
+      .doc(post.id)
+      .update({
+        message: message
+      })
+      .then(async () => {
+        const toast = await this.toastCtrl.create({
+          message: '投稿が更新されました',
+          duration: 3000
+        });
+        await toast.present();
+      })
+      .catch(async error => {
+        const toast = await this.toastCtrl.create({
+          message: error.toString(),
+          duration: 3000
+        });
+        await toast.present();
+      });
+  }
+
+  deletePost(post: Post) {
+    console.log(post.id);
+    this.postsCollection
+      .doc(post.id)
+      .delete()
+      .then(async () => {
+        const toast = await this.toastCtrl.create({
+          message: '投稿が削除されました',
+          duration: 3000
+        });
+        await toast.present();
+      })
+      .catch(async error => {
+        const toast = await this.toastCtrl.create({
+          message: error.toString(),
+          duration: 3000
+        });
+        await toast.present();
+      })
   }
 }
